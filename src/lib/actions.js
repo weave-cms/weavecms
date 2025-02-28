@@ -472,9 +472,13 @@ export const sites = {
 			}
 
 			// create distribution
-			const dist_res = await axios.post('/api/deploy/initial-deployment', {files, site_id: site.id, domain_name: site.domain_name})
+			const {data} = await axios.post('/api/deploy/initial-deployment', {files, site_id: site.id, domain_name: site.domain_name})
 
-			console.log('Site created successfully')
+			if (data.success) {
+				console.log('Site created successfully')
+			} else {
+				alert(data.error)
+			}
 		} catch (e) {
 			console.error('SOMETHING WENT WRONG', e)
 				// TODO: Implement rollback logic to delete inserted items if an error occurs

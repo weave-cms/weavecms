@@ -9,6 +9,7 @@
 
 	let { stage = $bindable() } = $props()
 
+	let error = $state(null)
 	async function publish_site() {
 		// const res = await site_actions.deploy($page.data.site.id, $page.data.site.custom_domain)
 		// console.log({ res })
@@ -17,8 +18,9 @@
 			site_id: $page.data.site.id
 		})
 		console.log({ data })
+		error = data.error
 		loading = false
-		stage = 'PUBLISHED'
+		stage = data.success ? 'PUBLISHED' : 'ERROR'
 	}
 
 	if ($page.data.site.custom_domain_connected) {
@@ -224,6 +226,8 @@
 				{url}
 			</a>
 		</p>
+	{:else if stage === 'ERROR'}
+		<p class="error">{error}</p>
 	{/if}
 </div>
 
@@ -267,6 +271,11 @@
 			gap: 0.5rem;
 			padding: 1rem;
 		}
+	}
+
+	.error {
+		padding: 0.5rem;
+		background: var(--primo-color-danger);
 	}
 
 	.description {

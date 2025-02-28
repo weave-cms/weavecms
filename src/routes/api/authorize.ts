@@ -4,7 +4,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 
 type AuthorizeOptions = {
   onsuccess: (args: any) => Promise<Response>;
-  onerror: () => Promise<Response>;
+  onerror: (error: any) => Promise<Response>;
 };
 
 export default async function authorize({ request, locals, url }: RequestEvent, { onsuccess, onerror }: AuthorizeOptions): Promise<Response> {
@@ -51,7 +51,7 @@ export default async function authorize({ request, locals, url }: RequestEvent, 
     return await onsuccess(request_data)
   } catch (error) {
     console.error(error);
-    return await onerror()
+    return await onerror(error)
   }
 };
 

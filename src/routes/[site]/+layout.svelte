@@ -163,7 +163,6 @@
 	})
 
 	broadcast_subscribe(async (res) => {
-		console.log('sending', { res })
 		channel.send({
 			type: 'broadcast',
 			event: 'save',

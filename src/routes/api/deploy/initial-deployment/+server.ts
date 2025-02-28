@@ -40,10 +40,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     return json({ success: true });
   } catch (e) {
     console.error(e)
-    return json({ success: false, message: 'Unauthorized' });
+    return json({ success: false, message: e?.message || 'Deployment failed' });
   }
-
-
 };
 
 async function upload_files(site_id: string, files: DeploymentFile[]): Promise<void> {
@@ -71,14 +69,9 @@ async function upload_files(site_id: string, files: DeploymentFile[]): Promise<v
     });
   });
 
-  try {
-    console.log(`Starting upload of ${files.length} files for site ${site_id}`);
-    const results = await Promise.all(commands.map(command => s3_client.send(command)));
-    console.log(`Successfully uploaded ${results.length} files for site ${site_id}`);
-  } catch (error) {
-    console.error(`Error uploading files for site ${site_id}:`, error);
-    throw new Error(`Failed to upload files for site ${site_id}`);
-  }
+  console.log(`Starting upload of ${files.length} files for site ${site_id}`);
+  const results = await Promise.all(commands.map(command => s3_client.send(command)));
+  console.log(`Successfully uploaded ${results.length} files for site ${site_id}`);
 }
 
 async function copy_staging_to_live(site_id: string): Promise<void> {
@@ -91,36 +84,31 @@ async function copy_staging_to_live(site_id: string): Promise<void> {
 
   const folder_name = data?.custom_domain || site_id
 
-  try {
-    console.log(`Listing objects in staging folder for site ${site_id}`);
-    const list_command = new ListObjectsV2Command({
+  console.log(`Listing objects in staging folder for site ${site_id}`);
+  const list_command = new ListObjectsV2Command({
+    Bucket: 'weave-sites',
+    Prefix: `${folder_name}/staging/`,
+  });
+
+  const list_response = await s3_client.send(list_command);
+  console.log('List response:', list_response);
+
+  const staging_objects = list_response.Contents || [];
+
+  const copy_commands = staging_objects.map(object => {
+    if (!object.Key) return null;
+
+    const source_key = object.Key;
+    const destination_key = source_key.replace(`${folder_name}/staging/`, `${folder_name}/live/`);
+
+    return new CopyObjectCommand({
       Bucket: 'weave-sites',
-      Prefix: `${folder_name}/staging/`,
+      CopySource: `weave-sites/${source_key}`,
+      Key: destination_key,
     });
+  }).filter((command): command is CopyObjectCommand => command !== null);
 
-    const list_response = await s3_client.send(list_command);
-    console.log('List response:', list_response);
-
-    const staging_objects = list_response.Contents || [];
-
-    const copy_commands = staging_objects.map(object => {
-      if (!object.Key) return null;
-
-      const source_key = object.Key;
-      const destination_key = source_key.replace(`${folder_name}/staging/`, `${folder_name}/live/`);
-
-      return new CopyObjectCommand({
-        Bucket: 'weave-sites',
-        CopySource: `weave-sites/${source_key}`,
-        Key: destination_key,
-      });
-    }).filter((command): command is CopyObjectCommand => command !== null);
-
-    console.log(`Starting copy of ${copy_commands.length} files for site ${folder_name}`);
-    const copy_results = await Promise.all(copy_commands.map(command => s3_client.send(command)));
-    console.log(`Successfully copied ${copy_results.length} files from staging to live for site ${folder_name}`);
-  } catch (error) {
-    console.error(`Error in copy_staging_to_live for site ${folder_name}:`, error);
-    throw new Error(`Failed to copy files from staging to live for site ${folder_name}`);
-  }
+  console.log(`Starting copy of ${copy_commands.length} files for site ${folder_name}`);
+  const copy_results = await Promise.all(copy_commands.map(command => s3_client.send(command)));
+  console.log(`Successfully copied ${copy_results.length} files from staging to live for site ${folder_name}`);
 }

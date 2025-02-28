@@ -28,8 +28,8 @@ export const POST: RequestHandler = async (event) => {
 
       return json({ success: true, message: 'Deployment successful' });
     },
-    onerror: async () => {
-      return json({ success: false, error: 'Deployment failed' });
+    onerror: async (error) => {
+      return json({ success: false, error: error?.message || 'Deployment failed' });
     }
   })
 };
@@ -44,38 +44,33 @@ async function copy_staging_to_live(site_id: string): Promise<void> {
 
   const folder_name = data.custom_domain || site_id
 
-  try {
-    console.log(`Listing objects in staging folder for site ${folder_name}`);
-    const list_command = new ListObjectsV2Command({
+  console.log(`Listing objects in staging folder for site ${folder_name}`);
+  const list_command = new ListObjectsV2Command({
+    Bucket: 'weave-sites',
+    Prefix: `${folder_name}/staging/`,
+  });
+
+  const list_response = await s3_client.send(list_command);
+  console.log('List response:', list_response);
+
+  const staging_objects = list_response.Contents || [];
+
+  const copy_commands = staging_objects.map(object => {
+    if (!object.Key) return null;
+
+    const source_key = object.Key;
+    const destination_key = source_key.replace(`${folder_name}/staging/`, `${folder_name}/live/`);
+
+    console.log({ destination_key })
+
+    return new CopyObjectCommand({
       Bucket: 'weave-sites',
-      Prefix: `${folder_name}/staging/`,
+      CopySource: encodeURIComponent(`weave-sites/${source_key}`),
+      Key: destination_key,
     });
+  }).filter((command): command is CopyObjectCommand => command !== null);
 
-    const list_response = await s3_client.send(list_command);
-    console.log('List response:', list_response);
-
-    const staging_objects = list_response.Contents || [];
-
-    const copy_commands = staging_objects.map(object => {
-      if (!object.Key) return null;
-
-      const source_key = object.Key;
-      const destination_key = source_key.replace(`${folder_name}/staging/`, `${folder_name}/live/`);
-
-      console.log({ destination_key })
-
-      return new CopyObjectCommand({
-        Bucket: 'weave-sites',
-        CopySource: encodeURIComponent(`weave-sites/${source_key}`),
-        Key: destination_key,
-      });
-    }).filter((command): command is CopyObjectCommand => command !== null);
-
-    console.log(`Starting copy of ${copy_commands.length} files for site ${folder_name}`);
-    const copy_results = await Promise.all(copy_commands.map(command => s3_client.send(command)));
-    console.log(`Successfully copied ${copy_results.length} files from staging to live for site ${folder_name}`);
-  } catch (error) {
-    console.error(`Error in copy_staging_to_live for site ${folder_name}:`, error);
-    throw new Error(`Failed to copy files from staging to live for site ${folder_name}`);
-  }
+  console.log(`Starting copy of ${copy_commands.length} files for site ${folder_name}`);
+  const copy_results = await Promise.all(copy_commands.map(command => s3_client.send(command)));
+  console.log(`Successfully copied ${copy_results.length} files from staging to live for site ${folder_name}`);
 }
