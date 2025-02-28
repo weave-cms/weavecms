@@ -43,29 +43,23 @@ export async function page_html({ page = get(active_page), site = get(activeSite
 	}
 	const component = await Promise.all([
 		...page_sections
-			.filter((s) => s.symbol || s.master?.symbol)
+			.filter((s) => s.symbol || s.master?.symbol) // filter out pallete section
 			.sort((a, b) => {
-				const a_palette_index = a.palette ? page_sections.find(s => s.id === a.palette)?.index : null
-				const b_palette_index = b.palette ? page_sections.find(s => s.id === b.palette)?.index : null
-
-				const a_master_index = a.master?.index || null
-				const b_master_index = b.master?.index || null
-
-				if (a_palette_index !== null && b_palette_index !== null) {
-					// @ts-ignore
+				// If both sections belong to a palette, compare their indices directly
+				if (a.palette && b.palette) {
 					return a.index - b.index
-				} else if (a_palette_index !== null && b_master_index !== null) {
-					// @ts-ignore
-					return a_palette_index - b_master_index
-				} else if (a_master_index !== null && b_palette_index !== null) {
-					// @ts-ignore
-					return a_master_index - b_palette_index
-				} else if (a_master_index !== null && b_master_index !== null) {
-					return a_master_index - b_master_index
 				}
 
-				// Otherwise compare regular indices
-				return a.index - b.index;
+				// Get the controlling index for each section
+				const a_index = a.palette 
+						? page_sections.find(s => s.id === a.palette)?.master?.index // use palette parent's index
+						: (a.master?.index ?? a.index) // use master index or own index
+
+				const b_index = b.palette
+						? page_sections.find(s => s.id === b.palette)?.master?.index // use palette parent's index
+						: (b.master?.index ?? b.index) // use master index or own index
+
+				return a_index - b_index
 			})
 			.map(async (section) => {
 				// @ts-ignore

@@ -47,10 +47,8 @@
 				site: data.site,
 				page_sections: data.sections.filter((section) => section.page === home_page.id),
 				page_symbols: data.symbols,
-				page_list: data.pages.map((page) => ({
-					...page,
-					page_type: page.page_type?.id || data.page_types.find((pt) => pt.id === page.page_type)
-				}))
+				page_list: data.pages,
+				page_types: data.page_types
 			})
 		).html
 		generating_site_preview = false

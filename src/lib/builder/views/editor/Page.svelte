@@ -12,7 +12,7 @@
 	import DropIndicator from './Layout/DropIndicator.svelte'
 	import { isEqual, cloneDeep } from 'lodash-es'
 	import { code as siteCode, design as siteDesign } from '$lib/builder/stores/data/site'
-	import { locale, locked_blocks, page_loaded, dragging_symbol } from '$lib/builder/stores/app/misc'
+	import { locale, locked_blocks, page_loaded, dragging_symbol, editing_context } from '$lib/builder/stores/app/misc'
 	import { add_section_to_palette, delete_section_from_palette, move_section } from '$lib/builder/actions/sections'
 	import { update_section } from '$lib/builder/actions/sections'
 	import modal from '$lib/builder/stores/app/modal'

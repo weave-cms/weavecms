@@ -10,7 +10,7 @@ import symbols from './data/symbols.js'
 import { page } from '$app/stores'
 import active_page from './data/page.js'
 import page_type from './data/page_type.js'
-import { locale } from './app/misc.js'
+import { locale, editing_context } from './app/misc.js'
 import { transform_content } from '../transform_data.js'
 
 export async function get_symbol_usage_info(symbol_id) {
@@ -184,20 +184,23 @@ export function get_content_with_synced_values({ entries, fields, page = get(act
 	try {
 		const ordered_data_fields = fields.filter((f) => site_data_field_types.includes(f.type)).sort((a, b) => a.index - b.index)
 
-
 		for (const field of ordered_data_fields) {
 			if (field.type === 'page-field') {
-				const page_type_object = page_types.find(pt => pt.id === page.page_type)
+				const editing_page = get(editing_context) === 'page'
+				const page_type_object = editing_page ? page_types.find(pt => pt.id === (page.page_type?.id || page.page_type)) : get(page_type)
 
-				const page_type_content = page_type_object?.entries
-				const source_content = _.cloneDeep(page_type_content)
+				if (!page_type_object) {
+					console.error('Something went wrong. Page Type deleted.')
+					continue
+				}
 
-				const page_type_fields = page_type_object?.fields
-				const source_fields = _.cloneDeep(page_type_fields)
+				const source_entries = _.cloneDeep(editing_page ? page.entries : page_type_object.entries)
+
+				const page_type_fields = page_type_object.fields
 
 				// get data from source
-				const source_field = source_fields.find((f) => f.id === field.source)
-				const source_entry = source_content.find((e) => e.field === field.source)
+				const source_field = page_type_fields.find((f) => f.id === field.source)
+				const source_entry = source_entries.find((e) => e.field === field.source)
 
 				if (!source_field) {
 					console.warn('Source field has been deleted', field)
@@ -218,12 +221,12 @@ export function get_content_with_synced_values({ entries, fields, page = get(act
 
 				if (source_field.type === 'repeater' || source_field.type === 'group') {
 					// push repeater item entries
-					for (const entry of source_content) {
-						const is_descendent = get_ancestors(entry, source_content).includes(source_entry.id)
+					for (const entry of source_entries) {
+						const is_descendent = get_ancestors(entry, source_entries).includes(source_entry.id)
 						if (is_descendent) content_with_source.push(entry)
 					}
-					for (const field of source_fields) {
-						const is_descendent = get_ancestors(field, source_fields).includes(source_field.id)
+					for (const field of page_type_fields) {
+						const is_descendent = get_ancestors(field, page_type_fields).includes(source_field.id)
 						if (is_descendent) fields_with_source.push(field)
 					}
 				}

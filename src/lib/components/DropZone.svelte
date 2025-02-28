@@ -74,7 +74,7 @@
 			<span>Click or drop to replace</span>
 		</div>
 	{:else}
-		<div class="flex flex-col items-center text-sm text-gray-400">
+		<div class="flex flex-col items-center text-sm text-gray-400 text-center">
 			<Upload class="h-5 w-5 mb-2" />
 			<span>Drop your site file here or click to browse</span>
 			<span class="text-xs text-gray-500">Accepts .json, .yaml files</span>

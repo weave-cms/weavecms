@@ -21,7 +21,7 @@ export type Field = {
 	id: Field_ID
 	key: string
 	label: string
-	type?: 'repeater' | 'group' | 'text' | 'markdown' | 'image' | 'number' | 'switch' | 'url' | 'link' | 'select' | 'icon' | 'info' | null
+	type?: 'repeater' | 'group' | 'text' | 'markdown' | 'image' | 'number' | 'switch' | 'url' | 'link' | 'select' | 'icon' | 'info' | 'page-field' | 'site-field' | 'page' | 'page-list' | null
 	addon_type?: string | null
 	options: object
 	index: number
