@@ -50,28 +50,33 @@
 
 		// create entries entries
 		const new_entries = []
-		const parent_container_entry = entries.find((e) => e.field === parent_field.id)
-		if (parent_field.type === 'repeater' && parent_container_entry) {
-			// add entries item for each existing repeater item
-			const repeater_item_entries = entries.filter((e) => e.parent === parent_container_entry.id)
-			for (const repeater_item_entry of repeater_item_entries) {
+		const parent_container_entries = entries.filter((e) => e.field === parent_field.id)
+
+		for (const parent_container_entry of parent_container_entries) {
+			if (parent_field.type === 'repeater' && parent_container_entry) {
+				// add entries item for each existing repeater item
+
+				const repeater_item_entries = entries.filter((e) => e.parent === parent_container_entry.id)
+				for (const repeater_item_entry of repeater_item_entries) {
+					const new_entry = Content_Row({
+						parent: repeater_item_entry.id,
+						field: new_field.id,
+						value: get_empty_value(new_field),
+						locale: ['repeater', 'group'].includes(new_field.type) ? null : $locale
+					})
+					new_entries.push(new_entry)
+				}
+			} else if (parent_field.type === 'group' && parent_container_entry) {
 				const new_entry = Content_Row({
-					parent: repeater_item_entry.id,
+					parent: parent_container_entry.id,
 					field: new_field.id,
 					value: get_empty_value(new_field),
 					locale: ['repeater', 'group'].includes(new_field.type) ? null : $locale
 				})
 				new_entries.push(new_entry)
 			}
-		} else if (parent_field.type === 'group' && parent_container_entry) {
-			const new_entry = Content_Row({
-				parent: parent_container_entry.id,
-				field: new_field.id,
-				value: get_empty_value(new_field),
-				locale: ['repeater', 'group'].includes(new_field.type) ? null : $locale
-			})
-			new_entries.push(new_entry)
 		}
+
 		const updated_entries = cloneDeep([...entries, ...new_entries])
 
 		dispatch_update({
