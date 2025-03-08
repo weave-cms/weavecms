@@ -111,8 +111,10 @@ export const component_iframe_srcdoc = ({ head = '', css = '', foot = '' }) => {
           window.addEventListener('message', ({data}) => {
             // handle the message here
             const { payload } = data
-            if (payload.js || payload.data) {
+            if (payload?.js && payload?.data) {
               update(payload.js, payload.data)
+            } else if (payload?.data && c) {
+              c.$set(payload.data);
             }
           })
 
@@ -134,7 +136,7 @@ export const component_iframe_srcdoc = ({ head = '', css = '', foot = '' }) => {
                   })
                   // setTimeout(setListeners, 1000)
                 } catch(e) {
-                  document.querySelector('#page').innerHTML = ''
+                  document.querySelector('body').innerHTML = ''
                   console.error(e.toString())
                   // channel.postMessage({
                   //   event: 'SET_ERROR',

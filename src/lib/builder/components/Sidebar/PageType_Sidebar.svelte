@@ -27,6 +27,13 @@
 	import { dropTargetForElements } from '../../libraries/pragmatic-drag-and-drop/entry-point/element/adapter.js'
 	import { attachClosestEdge, extractClosestEdge } from '../../libraries/pragmatic-drag-and-drop-hitbox/closest-edge.js'
 	import { site_html } from '$lib/builder/stores/app/page'
+	import * as Dialog from '$lib/components/ui/dialog'
+	import { Button } from '$lib/components/ui/button'
+	import DropZone from '$lib/components/DropZone.svelte'
+	import { Input } from '$lib/components/ui/input'
+	import { Loader } from 'lucide-svelte'
+	import * as Tabs from '$lib/components/ui/tabs'
+	import { Cuboid, SquarePen } from 'lucide-svelte'
 
 	// get the query param to set the tab when navigating from page (i.e. 'Edit Fields')
 	let active_tab = $state($page.url.searchParams.get('t') === 'p' ? 'CONTENT' : 'BLOCKS')
@@ -258,25 +265,18 @@
 </script>
 
 <div class="sidebar primo-reset">
-	<UI.Tabs
-		variant="secondary"
-		tabs={[
-			{
-				id: 'BLOCKS',
-				icon: 'lucide:blocks',
-				label: `Blocks`
-			},
-			{
-				id: 'CONTENT',
-				icon: 'material-symbols:article-outline',
-				label: `Content`
-			}
-		]}
-		bind:active_tab_id={active_tab}
-		disable_hotkeys={true}
-	/>
-	<div class="container">
-		{#if active_tab === 'BLOCKS'}
+	<Tabs.Root value="blocks" class="p-2">
+		<Tabs.List class="w-full mb-2">
+			<Tabs.Trigger value="blocks" class="flex-1 flex gap-1">
+				<Cuboid class="w-3" />
+				<span class="text-xs">Page Blocks</span>
+			</Tabs.Trigger>
+			<Tabs.Trigger value="content" class="flex-1 flex gap-1">
+				<SquarePen class="w-3" />
+				<span class="text-xs">Page Content</span>
+			</Tabs.Trigger>
+		</Tabs.List>
+		<Tabs.Content value="blocks" class="px-1">
 			{#if $symbols.length > 0}
 				<div class="primo-buttons">
 					<button class="primo-button" onclick={show_block_picker}>
@@ -284,10 +284,74 @@
 						<span>Add</span>
 					</button>
 					{#if $userRole === 'DEV'}
-						<button class="primo-button" onclick={create_block}>
-							<Icon icon="mdi:code" />
-							<span>Create</span>
-						</button>
+						<Dialog.Root>
+							<Dialog.Trigger>
+								<div class="primo-button">
+									<Icon icon="mdi:code" />
+									<span>Create</span>
+								</div>
+							</Dialog.Trigger>
+							<Dialog.Content class="sm:max-w-[425px] pt-12 gap-0">
+								<h2 class="text-lg font-semibold leading-none tracking-tight mb-2">Create Block</h2>
+								<p class="text-muted-foreground text-sm">Enter a prompt describing the block's content, layout, styling, and any other details.</p>
+								<form
+									onsubmit={(e) => {
+										e.preventDefault()
+										create_block()
+									}}
+								>
+									<Input bind:value={prompt} placeholder="a hero section with a heading, a..." class="my-4" />
+									<div class="grid gap-2">
+										<div class="col-span-2">
+											<DropZone drop_text="Drop image or paste from clipboard" accept=".jpg, .jpeg, .png, .webp" class="h-full" invalid={false} onupload={(file) => (prompt_image = file)} />
+										</div>
+										<div class="relative bg-gray-900 rounded overflow-hidden">
+											{#if true}
+												<div class="flex items-center justify-center h-full">
+													<div class="animate-spin absolute">
+														<Loader />
+													</div>
+												</div>
+											{:else if false}
+												nothing
+											{/if}
+										</div>
+									</div>
+									<Dialog.Footer class="mt-2 flex justify-between items-center">
+										<button type="button" class="text-xs text-muted-foreground hover:text-foreground transition-colors" onclick={create_block}>Create from scratch</button>
+										<div class="flex gap-2">
+											<Button type="button" variant="outline" onclick={() => {}}>Cancel</Button>
+											<Button type="submit">
+												{#if loading}
+													<div class="animate-spin absolute">
+														<Loader />
+													</div>
+												{:else}
+													<span>Create</span>
+												{/if}
+											</Button>
+										</div>
+									</Dialog.Footer>
+								</form>
+							</Dialog.Content>
+						</Dialog.Root>
+
+						<!-- <UI.Dropdown>
+							<button class="primo-button" slot="trigger">
+								<Icon icon="mdi:code" />
+								<span>Create</span>
+							</button>
+							<div class="dropdown-content">
+								<button class="dropdown-item" onclick={create_block}>
+									<Icon icon="mdi:code" />
+									<span>From Scratch</span>
+								</button>
+								<button class="dropdown-item" onclick={create_block_from_prompt}>
+									<Icon icon="mdi:robot" />
+									<span>From Prompt</span>
+								</button>
+							</div>
+						</UI.Dropdown> -->
 					{/if}
 					<label class="primo-button">
 						<input onchange={upload_block} type="file" accept=".json" />
@@ -350,7 +414,8 @@
 					</label>
 				</div>
 			{/if}
-		{:else}
+		</Tabs.Content>
+		<Tabs.Content value="content" class="px-1">
 			<div class="page-type-fields">
 				{#if $userRole === 'DEV'}
 					<button class="primo--link" style="margin-bottom: 1rem" onclick={() => modal.show('PAGE_EDITOR')}>
@@ -368,8 +433,8 @@
 					minimal={true}
 				/>
 			</div>
-		{/if}
-	</div>
+		</Tabs.Content>
+	</Tabs.Root>
 </div>
 
 <style lang="postcss">

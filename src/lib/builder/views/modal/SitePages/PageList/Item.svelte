@@ -342,6 +342,12 @@
 					text-overflow: ellipsis;
 					font-weight: 400;
 					color: var(--color-gray-5);
+					max-width: 10rem;
+					display: inline-block; /* This is key for spans */
+					max-width: 200px; /* Using max-width is often better for responsive designs */
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
 				}
 
 				div.name,

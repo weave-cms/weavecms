@@ -4,6 +4,7 @@
 	import pages from '$lib/builder/stores/data/pages'
 	import actions from '$lib/builder/actions/pages'
 	import active_page from '$lib/builder/stores/data/page'
+	import { editing_context } from '$lib/builder/stores/app/misc'
 	import { flip } from 'svelte/animate'
 	import PageForm from './PageForm.svelte'
 
@@ -30,7 +31,7 @@
 			<Item
 				{page}
 				{children}
-				active={$active_page.id === page.id}
+				active={$active_page.id === page.id && $editing_context === 'page'}
 				on:create={({ detail }) => create_page(detail.page, detail.index)}
 				on:delete={({ detail: terminal_page }) => delete_page(terminal_page)}
 			/>

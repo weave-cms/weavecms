@@ -182,7 +182,9 @@
 				{#each subfields as subfield, subfield_index (repeater_item._key + subfield.key)}
 					{@const content_entry = get_content_entry(subfield)}
 					{@const is_visible = check_condition(subfield, content_entry)}
-					{#if is_visible}
+					{#if !content_entry}
+						<span>Entry corrupted</span>
+					{:else if content_entry && is_visible}
 						{@const SvelteComponent = getFieldComponent(subfield)}
 						<div class="repeater-item-field" id="repeater-{field.key}-{index}-{subfield.key}">
 							<SvelteComponent

@@ -5,6 +5,7 @@
 	import page_types from '$lib/builder/stores/data/page_types'
 	import actions from '$lib/builder/actions/page_types'
 	import active_page_type from '$lib/builder/stores/data/page_type'
+	import { editing_context } from '$lib/builder/stores/app/misc'
 	import { id as site_id } from '$lib/builder/stores/data/site'
 	import PageForm from './PageTypeForm.svelte'
 	import modal from '$lib/builder/stores/app/modal'
@@ -28,7 +29,7 @@
 			<li>
 				<Item
 					page={page_type}
-					active={$active_page_type.id === page_type.id}
+					active={$active_page_type.id === page_type.id && $editing_context === 'page_type'}
 					on:edit={({ detail }) => {
 						console.log({ detail })
 						actions.update(page_type.id, detail)

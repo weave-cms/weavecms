@@ -245,7 +245,7 @@
 		color: #222;
 		padding-block: 3px;
 		background: var(--weave-primary-color);
-		z-index: 99;
+		z-index: 9;
 		border-radius: 1px;
 		font-size: 10px;
 	}

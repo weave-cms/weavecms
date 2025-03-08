@@ -3,21 +3,18 @@
 	import PageList from './PageList/PageList.svelte'
 	import Page_Types_List from './Page_Types_List/Page_Types_List.svelte'
 	import Icon from '@iconify/svelte'
-	import { userRole } from '$lib/builder/stores/app/misc'
-	import { page } from '$app/stores'
-
-	let current_step = $state($page.params.page_type ? 'page_types' : 'pages')
+	import { userRole, editing_context } from '$lib/builder/stores/app/misc'
 </script>
 
 <ModalHeader>
 	{#snippet title()}
 		{#if $userRole === 'DEV'}
 			<div class="tabs">
-				<button class="title" class:active={current_step === 'pages'} onclick={() => (current_step = 'pages')}>
+				<button class="title" class:active={$editing_context === 'page'} onclick={() => ($editing_context = 'page')}>
 					<Icon icon="iconoir:multiple-pages" />
 					<span>Pages</span>
 				</button>
-				<button class="title" class:active={current_step === 'page_types'} onclick={() => (current_step = 'page_types')}>
+				<button class="title" class:active={$editing_context === 'page_type'} onclick={() => ($editing_context = 'page_type')}>
 					<Icon icon="carbon:template" />
 					<span>Page Types</span>
 				</button>
@@ -32,7 +29,7 @@
 </ModalHeader>
 
 <main>
-	{#if current_step === 'pages'}
+	{#if $editing_context === 'page'}
 		<PageList />
 	{:else}
 		<Page_Types_List />

@@ -19,6 +19,8 @@
 	import { attachClosestEdge, extractClosestEdge } from '$lib/builder/libraries/pragmatic-drag-and-drop-hitbox/closest-edge.js'
 	import { site_html } from '$lib/builder/stores/app/page'
 	import { userRole } from '$lib/builder/stores/app/misc'
+	import * as Tabs from '$lib/components/ui/tabs'
+	import { Cuboid, SquarePen } from 'lucide-svelte'
 
 	let active_tab = $state((browser && localStorage.getItem('page-tab')) || 'BLOCKS')
 
@@ -66,62 +68,53 @@
 
 <div class="sidebar primo-reset">
 	{#if has_symbols}
-		<UI.Tabs
-			variant="secondary"
-			tabs={[
-				{
-					id: 'BLOCKS',
-					icon: 'lucide:blocks',
-					label: `Blocks`
-				},
-				{
-					id: 'CONTENT',
-					icon: 'material-symbols:article-outline',
-					label: `Content`
-				}
-			]}
-			bind:active_tab_id={active_tab}
-			on:switch={({ detail: tab_id }) => {
-				localStorage.setItem('page-tab', tab_id)
-			}}
-			disable_hotkeys={true}
-		/>
-	{/if}
-	<div class="container">
-		{#if active_tab === 'BLOCKS'}
-			<div class="symbols">
-				{#if $site_html !== null}
-					{#each page_type_symbols as symbol, i (symbol.id)}
-						<div animate:flip={{ duration: 200 }} use:drag_target={symbol}>
-							<Sidebar_Symbol {symbol} controls_enabled={false} head={$site_html} append={site_design_css($site.design)} />
+		<Tabs.Root value="blocks" class="p-2">
+			<Tabs.List class="w-full mb-2">
+				<Tabs.Trigger value="blocks" class="flex-1 flex gap-1">
+					<Cuboid class="w-3" />
+					<span class="text-xs">Blocks</span>
+				</Tabs.Trigger>
+				<Tabs.Trigger value="content" class="flex-1 flex gap-1">
+					<SquarePen class="w-3" />
+					<span class="text-xs">Content</span>
+				</Tabs.Trigger>
+			</Tabs.List>
+			<Tabs.Content value="blocks">
+				<div class="symbols">
+					{#if $site_html !== null}
+						{#each page_type_symbols as symbol, i (symbol.id)}
+							<div animate:flip={{ duration: 200 }} use:drag_target={symbol}>
+								<Sidebar_Symbol {symbol} controls_enabled={false} head={$site_html} append={site_design_css($site.design)} />
+							</div>
+						{/each}
+					{:else}
+						<div style="display: flex;justify-content: center;font-size: 2rem;color:var(--color-gray-6)">
+							<UI.Spinner variant="loop" />
 						</div>
-					{/each}
-				{:else}
-					<div style="display: flex;justify-content: center;font-size: 2rem;color:var(--color-gray-6)">
-						<UI.Spinner variant="loop" />
-					</div>
+					{/if}
+				</div>
+				{#if $userRole === 'DEV'}
+					<button onclick={() => goto(`/${$site.id}/page-type--${$active_page.page_type.id}?t=b`)} class="footer-link">Manage Blocks</button>
 				{/if}
-			</div>
-			{#if $userRole === 'DEV'}
-				<button onclick={() => goto(`/${$site.id}/page-type--${$active_page.page_type.id}?t=b`)} class="footer-link">Manage Blocks</button>
-			{/if}
-		{:else}
-			<div class="page-type-fields">
-				<Content
-					fields={$active_page.page_type.fields}
-					entries={$active_page.entries}
-					on:input={debounce({
-						instant: ({ detail }) => update_page_entries.store(detail.updated),
-						delay: ({ detail }) => update_page_entries.db(detail.original, detail.updated)
-					})}
-					minimal={true}
-				/>
-			</div>
-			{#if $userRole === 'DEV'}
-				<button onclick={() => goto(`/${$site.id}/page-type--${$active_page.page_type.id}?t=p`)} class="footer-link">Manage Fields</button>
-			{/if}
-		{/if}
-	</div>
+			</Tabs.Content>
+			<Tabs.Content value="content">
+				<div class="page-type-fields">
+					<Content
+						fields={$active_page.page_type.fields}
+						entries={$active_page.entries}
+						on:input={debounce({
+							instant: ({ detail }) => update_page_entries.store(detail.updated),
+							delay: ({ detail }) => update_page_entries.db(detail.original, detail.updated)
+						})}
+						minimal={true}
+					/>
+				</div>
+				{#if $userRole === 'DEV'}
+					<button onclick={() => goto(`/${$site.id}/page-type--${$active_page.page_type.id}?t=p`)} class="footer-link">Manage Fields</button>
+				{/if}
+			</Tabs.Content>
+		</Tabs.Root>
+	{/if}
 </div>
 
 <style lang="postcss">
@@ -138,7 +131,7 @@
 		z-index: 9;
 		position: relative;
 		overflow: auto;
-		padding-top: 0.5rem;
+		/* padding-top: 0.5rem; */
 	}
 
 	.container {

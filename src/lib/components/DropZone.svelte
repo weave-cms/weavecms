@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Upload, AlertCircle } from 'lucide-svelte'
+	import { onMount } from 'svelte'
 
-	const { onupload, class: classname = '', invalid = false } = $props()
+	const { onupload, class: classname = '', invalid = false, drop_text = 'Drop your site file here or click to browse', accept = '.json' } = $props()
 
 	let file: File | null = $state(null)
 	let isDragging = $state(false)
@@ -30,7 +31,22 @@
 		}
 	}
 
-	function handleFiles(files: FileList) {
+	function handle_paste(e: ClipboardEvent) {
+		e.preventDefault()
+		const items = e.clipboardData?.items
+
+		if (!items) return
+
+		for (const item of items) {
+			if (item.type.indexOf('image') !== -1) {
+				const file = item.getAsFile()
+				if (file) handleFiles([file])
+				break
+			}
+		}
+	}
+
+	function handleFiles(files: FileList | File[]) {
 		file = files[0]
 		onupload(file)
 	}
@@ -45,6 +61,13 @@
 	function handle_click() {
 		inputEl?.click()
 	}
+
+	onMount(() => {
+		window.addEventListener('paste', handle_paste)
+		return () => {
+			window.removeEventListener('paste', handle_paste)
+		}
+	})
 </script>
 
 <div
@@ -60,7 +83,7 @@
     flex flex-col items-center justify-center gap-2
     {isDragging ? 'border-blue-500 bg-blue-500/10' : file ? 'border-green-500/50 bg-green-500/5' : 'border-gray-700 hover:border-gray-600'}"
 >
-	<input bind:this={inputEl} type="file" class="hidden" onchange={(e) => handleFiles(e.currentTarget.files)} accept=".json" />
+	<input bind:this={inputEl} type="file" class="hidden" onchange={(e) => handleFiles(e.currentTarget.files)} {accept} />
 
 	{#if invalid}
 		<div class="flex flex-col items-center text-sm text-destructive">
@@ -76,8 +99,8 @@
 	{:else}
 		<div class="flex flex-col items-center text-sm text-gray-400 text-center">
 			<Upload class="h-5 w-5 mb-2" />
-			<span>Drop your site file here or click to browse</span>
-			<span class="text-xs text-gray-500">Accepts .json, .yaml files</span>
+			<span>{drop_text}</span>
+			<span class="text-xs text-gray-500">Accepts {accept} files</span>
 		</div>
 	{/if}
 </div>
