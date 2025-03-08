@@ -264,7 +264,6 @@ export async function update_section(section_id, { updated_data, build_page = tr
 			// DB: save Symbol code if changed
 			if (!_.isEqual(original_symbol.code, updated_symbol_code)) {
 				await db_actions.update_symbol(symbol_id, { code: updated_symbol_code })
-				update_symbol_file(get(stores.symbols).find(s => s.id === symbol_id))
 			}
 
 			// DB: save Symbol fields
@@ -313,6 +312,10 @@ export async function update_section(section_id, { updated_data, build_page = tr
 				)
 			}
 
+			if (!_.isEqual(original_symbol.code, updated_symbol_code)) {
+				update_symbol_file(get(stores.symbols).find(s => s.id === symbol_id))
+			}
+
 			if (build_page) {
 				update_page_file(site_content_changes.length > 0)
 			}
@@ -357,7 +360,6 @@ export async function update_section(section_id, { updated_data, build_page = tr
 
 			// DB: restore symbol code if changed
 			if (!_.isEqual(original_symbol.code, updated_data.code)) {
-				update_symbol_file(get(stores.symbols).find(s => s.id === symbol_id))
 				db_actions.update_symbol(original_symbol.id, { code: original_symbol.code })
 			}
 
@@ -393,6 +395,10 @@ export async function update_section(section_id, { updated_data, build_page = tr
 			original_section_entries = restored_section_entries
 			original_site_entries = restored_site_entries
 			original_page_entries = restored_page_entries
+
+			if (!_.isEqual(original_symbol.code, updated_data.code)) {
+				update_symbol_file(get(stores.symbols).find(s => s.id === symbol_id))
+			}
 		
 			if (build_page) {
 				update_page_file(site_content_changes.length > 0)
