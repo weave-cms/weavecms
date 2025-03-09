@@ -196,6 +196,10 @@ export default async function rollup_worker({ component, hydrated, buildStatic =
 								code,
 								svelteOptions
 							})
+
+							return res.code
+
+							
 							// TODO: reinstate warnings, pass along to UI instead of throwing
 							const warnings = res.warnings
 								.filter((w) => !w.message.startsWith(`Component has unused export`))

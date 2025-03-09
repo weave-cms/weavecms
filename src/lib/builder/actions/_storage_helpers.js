@@ -192,10 +192,16 @@ async function generate_and_upload_page(page, page_sections) {
 
 	// then sort by index and flatten
 
-	const { html } = await code_generators.page_html({
+	const { success, html } = await code_generators.page_html({
 		page,
 		page_sections: ordered_sections
 	})
+
+	if (!success) {
+		console.warn('Could not generate page', {page})
+		return
+	}
+
 
 	let path
 	if (page.slug === '') {

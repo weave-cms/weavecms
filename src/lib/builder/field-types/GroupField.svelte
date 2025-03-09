@@ -38,17 +38,22 @@
 			// field.options.condition = null
 			return true
 		}
-		const { value: comparable_value } = entries.find((e) => e.field === field_id)
+		// const { value: comparable_value } = entries.find((e) => e.field === field_id)
+		const entry_to_compare = entries.find((e) => e.field === field_id)
+		if (!entry_to_compare) {
+			console.log('No entry to compare', { field, entry_to_compare, entries })
+			return true
+		}
 		if (is_regex(value)) {
 			const regex = new RegExp(value.slice(1, -1))
-			if (comparison === '=' && regex.test(comparable_value)) {
+			if (comparison === '=' && regex.test(entry_to_compare.value)) {
 				return true
-			} else if (comparison === '!=' && !regex.test(comparable_value)) {
+			} else if (comparison === '!=' && !regex.test(entry_to_compare.value)) {
 				return true
 			}
-		} else if (comparison === '=' && value === comparable_value) {
+		} else if (comparison === '=' && value === entry_to_compare.value) {
 			return true
-		} else if (comparison === '!=' && value !== comparable_value) {
+		} else if (comparison === '!=' && value !== entry_to_compare.value) {
 			return true
 		}
 		return false

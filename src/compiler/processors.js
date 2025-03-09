@@ -91,14 +91,22 @@ export async function html({ component, head, buildStatic = true, format = 'esm'
 			component_data = component.data
 		}
 
-		const rendered = App.render(component_data)
-		// const rendered = render(App, { props: component_data })
-
-		payload = {
-			head: rendered.head,
-			html: rendered.html,
-			css: rendered.css.code,
-			js: res.dom
+		try {
+			const rendered = App.render(component_data)
+			payload = {
+				head: rendered.head,
+				html: rendered.html,
+				css: rendered.css.code,
+				js: res.dom
+			}
+		} catch(e) {
+			console.log({e})
+			payload = {
+				head: '',
+				html: '',
+				css: '',
+				js: ''
+			}
 		}
 	} else {
 		payload = {

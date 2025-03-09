@@ -32,7 +32,7 @@ export async function block_html({ code, data }) {
  *  locale?: string
  *  no_js?: boolean
  * }} details
- * @returns {Promise<{ html: string, js: string}>}
+ * @returns {Promise<{ html: string, js: string, success: boolean}>}
  * */
 export async function page_html({ page = get(active_page), site = get(activeSite), page_sections = get(sections), page_symbols = get(symbols), page_list = get(pages), page_types = get(stores.page_types), locale = 'en', no_js = false }) {
 	const page_type = _.isObject(page.page_type) ? page.page_type : page_types.find(pt => pt.id === page.page_type)
@@ -125,6 +125,7 @@ export async function page_html({ page = get(active_page), site = get(activeSite
  `
 
 	return {
+		success: !!res.html,
 		html: final,
 		js: res.js
 	}
