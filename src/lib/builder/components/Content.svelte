@@ -44,7 +44,7 @@
 		if (!field_to_compare) {
 			// field has been deleted, reset condition
 			// field.options.condition = null // causes unsafe mutation svelte error
-			return false
+			return true
 		}
 
 		// TODO: ensure correct field (considering repeaters)

@@ -269,11 +269,11 @@
 		<Tabs.List class="w-full mb-2">
 			<Tabs.Trigger value="blocks" class="flex-1 flex gap-1">
 				<Cuboid class="w-3" />
-				<span class="text-xs">Page Blocks</span>
+				<!-- <span class="text-xs">Page Blocks</span> -->
 			</Tabs.Trigger>
 			<Tabs.Trigger value="content" class="flex-1 flex gap-1">
 				<SquarePen class="w-3" />
-				<span class="text-xs">Page Content</span>
+				<!-- <span class="text-xs">Page Content</span> -->
 			</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="blocks" class="px-1">
@@ -284,57 +284,10 @@
 						<span>Add</span>
 					</button>
 					{#if $userRole === 'DEV'}
-						<Dialog.Root>
-							<Dialog.Trigger>
-								<div class="primo-button">
-									<Icon icon="mdi:code" />
-									<span>Create</span>
-								</div>
-							</Dialog.Trigger>
-							<Dialog.Content class="sm:max-w-[425px] pt-12 gap-0">
-								<h2 class="text-lg font-semibold leading-none tracking-tight mb-2">Create Block</h2>
-								<p class="text-muted-foreground text-sm">Enter a prompt describing the block's content, layout, styling, and any other details.</p>
-								<form
-									onsubmit={(e) => {
-										e.preventDefault()
-										create_block()
-									}}
-								>
-									<Input bind:value={prompt} placeholder="a hero section with a heading, a..." class="my-4" />
-									<div class="grid gap-2">
-										<div class="col-span-2">
-											<DropZone drop_text="Drop image or paste from clipboard" accept=".jpg, .jpeg, .png, .webp" class="h-full" invalid={false} onupload={(file) => (prompt_image = file)} />
-										</div>
-										<div class="relative bg-gray-900 rounded overflow-hidden">
-											{#if true}
-												<div class="flex items-center justify-center h-full">
-													<div class="animate-spin absolute">
-														<Loader />
-													</div>
-												</div>
-											{:else if false}
-												nothing
-											{/if}
-										</div>
-									</div>
-									<Dialog.Footer class="mt-2 flex justify-between items-center">
-										<button type="button" class="text-xs text-muted-foreground hover:text-foreground transition-colors" onclick={create_block}>Create from scratch</button>
-										<div class="flex gap-2">
-											<Button type="button" variant="outline" onclick={() => {}}>Cancel</Button>
-											<Button type="submit">
-												{#if loading}
-													<div class="animate-spin absolute">
-														<Loader />
-													</div>
-												{:else}
-													<span>Create</span>
-												{/if}
-											</Button>
-										</div>
-									</Dialog.Footer>
-								</form>
-							</Dialog.Content>
-						</Dialog.Root>
+						<button class="primo-button" onclick={create_block}>
+							<Icon icon="mdi:code" />
+							<span>Create</span>
+						</button>
 
 						<!-- <UI.Dropdown>
 							<button class="primo-button" slot="trigger">
@@ -444,12 +397,13 @@
 		z-index: 9;
 		display: flex;
 		flex-direction: column;
-		/* height: calc(100vh - 59px); */
-		height: 100%;
+		height: calc(100vh - 59px);
+		/* height: 100%; */
 		/* gap: 0.5rem; */
 		z-index: 9;
 		position: relative;
-		overflow: hidden;
+		overflow: auto;
+		/* overflow: hidden; */
 		/* padding-top: 0.5rem; */
 	}
 
