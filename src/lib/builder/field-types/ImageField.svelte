@@ -5,6 +5,7 @@
 	import Spinner from '../ui/Spinner.svelte'
 	import site from '../stores/data/site.js'
 	import { storageChanged } from '../database.js'
+	import imageCompression from 'browser-image-compression'
 
 	const default_value = {
 		alt: '',
@@ -32,7 +33,23 @@
 	async function upload_image(image) {
 		loading = true
 
-		await upload(image)
+		// Get compression options from field config or use defaults
+		const maxSizeMB = field.options?.maxSizeMB ?? 1
+    	const maxWidthOrHeight = field.options?.maxWidthOrHeight ?? 1920
+
+		// Compression options
+		const options = {
+			maxSizeMB, // Maximum size in MB
+			maxWidthOrHeight, // Resize large images to this dimension
+			useWebWorker: true // Use web worker for better UI performance
+		}
+
+		// Compress the image
+		const compressedImage = await imageCompression(image, options)
+		console.log(`Original size: ${image.size / 1024 / 1024} MB`)
+		console.log(`Compressed size: ${compressedImage.size / 1024 / 1024} MB`)
+
+		await upload(compressedImage)
 
 		async function upload(file) {
 			const key = `${$site.id}/${file.lastModified + file.name}`
