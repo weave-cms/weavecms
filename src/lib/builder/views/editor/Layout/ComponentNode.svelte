@@ -318,7 +318,8 @@
 						image_editor_is_visible = false
 					}
 				}
-				image_editor.onclick = () => {
+				image_editor.onclick = (e) => {
+					console.log(e)
 					modal.show('DIALOG', {
 						component: 'IMAGE',
 						onSubmit: ({ url, alt }) => {
@@ -331,6 +332,10 @@
 							value: {
 								url: element.src,
 								alt: element.alt
+							},
+							compressionOptions: {
+								maxSizeMB: e.field.options?.maxSizeMB,
+								maxWidthOrHeight: e.field.options?.maxWidthOrHeight
 							}
 						}
 					})
