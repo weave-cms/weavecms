@@ -11,6 +11,7 @@
 	import PageFieldField from './PageFieldField.svelte'
 	import PageListField from './PageListField.svelte'
 	import SelectField from './SelectField.svelte'
+	import ImageFieldOptions from './ImageFieldOptions.svelte'
 	import fieldTypes from '../../stores/app/fieldTypes.js'
 	import { dynamic_field_types } from '$lib/builder/field-types'
 	import { pluralize } from '../../field-types/RepeaterField.svelte'
@@ -124,7 +125,7 @@
 
 	let is_new_field = $state(field.key === '')
 
-	let hide_footer = $derived(!['select', ...dynamic_field_types].includes(field.type) && !field.options.condition)
+	let hide_footer = $derived(!['select', 'image', ...dynamic_field_types].includes(field.type) && !field.options.condition)
 </script>
 
 <div class="top-container" class:top_level class:collapsed>
@@ -377,6 +378,12 @@
 					console.log({ updated_field })
 					dispatch_update(updated_field)
 				}}
+			/>
+		{/if}
+		{#if field.type === 'image'}
+			<ImageFieldOptions
+				{field}
+				on:input={({ detail }) => dispatch_update({ options: detail.options })}
 			/>
 		{/if}
 		{#if field.type === 'page-field'}
