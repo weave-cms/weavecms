@@ -33,10 +33,14 @@
 	async function upload_image(image) {
 		loading = true
 
+		// Get compression options from field config or use defaults
+		const maxSizeMB = field.options?.maxSizeMB ?? 1
+    	const maxWidthOrHeight = field.options?.maxWidthOrHeight ?? 1920
+
 		// Compression options
 		const options = {
-			maxSizeMB: 1, // Maximum size in MB
-			maxWidthOrHeight: 1920, // Resize large images to this dimension
+			maxSizeMB, // Maximum size in MB
+			maxWidthOrHeight, // Resize large images to this dimension
 			useWebWorker: true // Use web worker for better UI performance
 		}
 
