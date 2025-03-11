@@ -1,81 +1,33 @@
 <script>
-    import UI from '../../ui/index.js'
-    import { createEventDispatcher } from 'svelte'
-    import { writable } from 'svelte/store'
-    
-    const dispatch = createEventDispatcher()
-    
-    let { field } = $props()
-    
-    let maxSizeMB = writable(field.options?.maxSizeMB ?? 1)
-    let maxWidthOrHeight = writable(field.options?.maxWidthOrHeight ?? 1920)
-    
-    function dispatch_update() {
-        dispatch('input', { 
-            options: { 
-                ...field.options, 
-                maxSizeMB, 
-                maxWidthOrHeight 
-            } 
-        })
-    }
+	import UI from '../../ui/index.js'
+	import { createEventDispatcher } from 'svelte'
+
+	const dispatch = createEventDispatcher()
+
+	let { field } = $props()
+
+	// Initialize options object if it doesn't exist
+	if (!field.options) field.options = {}
+
+	// Set defaults if values don't exist
+	if (field.options.maxSizeMB === undefined) field.options.maxSizeMB = 1
+	if (field.options.maxWidthOrHeight === undefined) field.options.maxWidthOrHeight = 1920
+
+	// Listen for changes to dispatch updates to parent
+	function handle_change() {
+		dispatch('input', { options: field.options })
+	}
 </script>
 
 <div class="ImageFieldOptions">
-    <h3>Image Compression</h3>
-    <div class="option-group">
-        <UI.TextInput
-            type="number"
-            label="Max Size (MB)"
-            value={$maxSizeMB}
-            on:input={(e) => {
-                const target = e.target;
-                if (target) {
-                    const value = target.value;
-                    maxSizeMB.set(parseFloat(value));
-                    dispatch_update();
-                }
-            }}
-        />
-        <div class="option-help">Maximum file size after compression</div>
-    </div>
-    
-    <div class="option-group">
-        <UI.TextInput
-            type="number"
-            value={$maxWidthOrHeight}
-            on:input={(e) => {
-                const target = e.target;
-                if (target) {
-                    const value = target.value;
-                    maxSizeMB.set(parseFloat(value));
-                    dispatch_update();
-                }
-            }}
-        />
-        <div class="option-help">Maximum width or height in pixels</div>
-    </div>
-</div>
+	<h3>Image Compression</h3>
+	<div class="option-group">
+		<UI.TextInput type="number" label="Max Size (MB)" bind:value={field.options.maxSizeMB} on:input={handle_change} />
+		<div class="option-help">Maximum file size after compression</div>
+	</div>
 
-<style lang="postcss">
-    .ImageFieldOptions {
-        display: grid;
-        gap: 1rem;
-    }
-    
-    h3 {
-        font-size: var(--font-size-2);
-        margin: 0;
-        color: var(--color-gray-2);
-    }
-    
-    .option-group {
-        display: grid;
-        gap: 0.25rem;
-    }
-    
-    .option-help {
-        font-size: var(--font-size-1);
-        color: var(--color-gray-4);
-    }
-</style>
+	<div class="option-group">
+		<UI.TextInput type="number" label="Max Dimension (px)" bind:value={field.options.maxWidthOrHeight} on:input={handle_change} />
+		<div class="option-help">Maximum width or height in pixels</div>
+	</div>
+</div>
