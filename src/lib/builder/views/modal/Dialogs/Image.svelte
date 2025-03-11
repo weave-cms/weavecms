@@ -4,6 +4,7 @@
 	import Button from '$lib/builder/ui/Button.svelte'
 	import UI from '../../../ui'
 	import { storageChanged } from '../../../database'
+	import imageCompression from 'browser-image-compression'
 
 	let { value = {}, children, onsubmit } = $props()
 
@@ -31,15 +32,23 @@
 		if (files.length > 0) {
 			const image = files[0]
 
-			// const compressed = await imageCompression(image, {
-			// 	maxSizeMB: 0.5
-			// })
+			// Compression options
+			const options = {
+				maxSizeMB: 1, // Maximum size in MB
+				maxWidthOrHeight: 1920, // Resize large images to this dimension
+				useWebWorker: true // Use web worker for better UI performance
+			}
+
+			// Compress the image
+			const compressedImage = await imageCompression(image, options)
+			console.log(`Original size: ${image.size / 1024 / 1024} MB`)
+			console.log(`Compressed size: ${compressedImage.size / 1024 / 1024} MB`)
 
 			const key = `_images/${image.lastModified + image.name}`
 			const { url } = await storageChanged({
 				action: 'upload',
 				key,
-				file: image
+				file: compressedImage
 			})
 
 			if (url) {
