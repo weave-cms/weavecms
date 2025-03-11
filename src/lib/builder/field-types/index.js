@@ -55,11 +55,7 @@ export default [
 		id: 'image',
 		icon: 'carbon:image',
 		label: 'Image',
-		component: ImageField,
-		options: {
-			maxSizeMB: 1,
-			maxWidthOrHeight: 1920
-		}
+		component: ImageField
 	},
 	{
 		id: 'icon',

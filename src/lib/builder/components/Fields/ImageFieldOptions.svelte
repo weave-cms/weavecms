@@ -20,14 +20,10 @@
 </script>
 
 <div class="ImageFieldOptions">
-	<h3>Image Compression</h3>
 	<div class="option-group">
 		<UI.TextInput type="number" label="Max Size (MB)" bind:value={field.options.maxSizeMB} on:input={handle_change} />
-		<div class="option-help">Maximum file size after compression</div>
 	</div>
-
 	<div class="option-group">
 		<UI.TextInput type="number" label="Max Dimension (px)" bind:value={field.options.maxWidthOrHeight} on:input={handle_change} />
-		<div class="option-help">Maximum width or height in pixels</div>
 	</div>
 </div>
