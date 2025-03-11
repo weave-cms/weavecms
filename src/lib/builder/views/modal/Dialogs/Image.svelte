@@ -6,7 +6,7 @@
 	import { storageChanged } from '../../../database'
 	import imageCompression from 'browser-image-compression'
 
-	let { value = {}, children, onsubmit, compressionOptions = {} } = $props()
+	let { value = {}, children, onsubmit, fieldOptions = {} } = $props()
 
 	let imagePreview = $state(value?.url || '')
 	let local_value = $state({
@@ -34,8 +34,8 @@
 
 			// Compression options
 			const options = {
-				maxSizeMB: compressionOptions.maxSizeMB ?? 1,
-				maxWidthOrHeight: compressionOptions.maxWidthOrHeight ?? 1920,
+				maxSizeMB: fieldOptions.maxSizeMB ?? 1,
+				maxWidthOrHeight: fieldOptions.maxWidthOrHeight ?? 1920,
 				useWebWorker: true
 			}
 
