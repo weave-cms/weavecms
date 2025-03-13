@@ -5,7 +5,7 @@
 </script>
 
 <div>
-	<UI.TextInput {...field} {value} {oninput} type="url" />
+	<UI.TextInput {...field} {value} oninput={(text) => oninput({ value: text })} type="url" />
 </div>
 
 <style lang="postcss">
