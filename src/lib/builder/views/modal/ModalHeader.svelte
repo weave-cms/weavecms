@@ -1,6 +1,6 @@
 <!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <script>
-	import { onDestroy } from 'svelte'
+	import { onMount, onDestroy } from 'svelte'
 	import Icon from '@iconify/svelte'
 	import modal from '../../stores/app/modal'
 	import { mod_key_held } from '../../stores/app/misc.js'
@@ -29,7 +29,23 @@
 		}
 	}
 
-	onDestroy(() => Mousetrap.unbind(['escape', 'mod+s']))
+	// Function to handle beforeunload event
+	function handle_beforeunload(event) {
+		if (!warn()) {
+			event.preventDefault()
+			// Chrome requires returnValue to be set
+			event.returnValue = ''
+			return ''
+		}
+	}
+
+	onMount(() => {
+		window.addEventListener('beforeunload', handle_beforeunload)
+	})
+
+	onDestroy(() => {
+		window.removeEventListener('beforeunload', handle_beforeunload)
+	})
 </script>
 
 <header class={variants}>
