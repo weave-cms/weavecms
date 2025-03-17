@@ -142,12 +142,13 @@
 					id: entry.id,
 					key: field.key,
 					value: entry.value,
-					type: field.type
+					type: field.type,
+					options: field.options
 				})
 			}
 		}
 
-		function search_elements_for_value({ id, key, value, type }) {
+		function search_elements_for_value({ id, key, value, type, options = {} }) {
 			for (const element of valid_elements) {
 				if (element.dataset['entry']) continue // element is already tagged, skip
 
@@ -156,7 +157,8 @@
 					key,
 					value,
 					type,
-					element
+					element,
+					options
 				})
 				if (matched) {
 					assigned_entry_ids.add(id)
@@ -165,7 +167,7 @@
 			}
 		}
 
-		function match_value_to_element({ id, element, key, value, type }) {
+		function match_value_to_element({ id, element, key, value, type, options = {} }) {
 			// if (value === '' || !value) return false
 
 			// ignore element
@@ -179,7 +181,7 @@
 				if (type === 'markdown') {
 					set_editable_markdown({ element, key, id })
 				} else if (type === 'image') {
-					set_editable_image({ element, id })
+					set_editable_image({ element, id, options })
 				} else if (type === 'link') {
 					set_editable_link({ element, id, url: value.url })
 				} else {
@@ -201,7 +203,7 @@
 			} else if (type === 'image' && element.nodeName === 'IMG') {
 				const image_matches = compare_urls(value.url, element.src)
 				if (image_matches) {
-					set_editable_image({ element, id })
+					set_editable_image({ element, id, options })
 					return true
 				}
 			} else if (type === 'markdown' && element.nodeName === 'DIV') {
@@ -289,7 +291,7 @@
 			})
 		}
 
-		async function set_editable_image({ element, id }) {
+		async function set_editable_image({ element, id, options }) {
 			let rect
 			element.setAttribute(`data-entry`, id)
 			element.onmousemove = (e) => {
@@ -319,6 +321,7 @@
 					}
 				}
 				image_editor.onclick = () => {
+					console.log(options)
 					modal.show('DIALOG', {
 						component: 'IMAGE',
 						onSubmit: ({ url, alt }) => {
@@ -331,7 +334,8 @@
 							value: {
 								url: element.src,
 								alt: element.alt
-							}
+							},
+							fieldOptions: options
 						}
 					})
 				}
