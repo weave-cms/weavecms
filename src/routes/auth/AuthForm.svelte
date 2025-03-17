@@ -1,20 +1,9 @@
 <script>
-	import { enhance } from '$app/forms'
-	import Icon from '@iconify/svelte'
+	import { Loader } from 'lucide-svelte'
 
 	let { title, email = $bindable(), password = $bindable(null), action, footer = null, error, disable_email = false } = $props()
 
 	let loading = $state(false)
-
-	function handle_submit() {
-		loading = true
-		return async ({ result, update }) => {
-			loading = false
-			if (result.type === 'success') {
-				await update()
-			}
-		}
-	}
 </script>
 
 <header>
@@ -23,7 +12,7 @@
 {#if error}
 	<div class="error">{error}</div>
 {/if}
-<form class="form" method="POST" action="?/{action}" use:enhance={handle_submit}>
+<form class="form" method="POST" action="?/{action}">
 	<div class="fields">
 		<label>
 			<span>Email</span>
@@ -37,11 +26,19 @@
 		{/if}
 		<!-- <input name="invitation_id" type="text" class="hidden" value={$page.url.searchParams.get('join')} /> -->
 	</div>
-	<button class="button" type="submit" data-test-id="submit">
+	<button
+		class="button"
+		type="submit"
+		data-test-id="submit"
+		onclick={() => {
+			loading = true
+		}}
+	>
+		<span class:invisible={loading}>{title}</span>
 		{#if loading}
-			<div class="icon"><Icon icon="gg:spinner" /></div>
-		{:else}
-			<span>{title}</span>
+			<div class="animate-spin absolute">
+				<Loader />
+			</div>
 		{/if}
 	</button>
 </form>
