@@ -48,7 +48,7 @@
 	 */
 
 	/** @type {Props} */
-	let { data = {}, html = $bindable(''), css = $bindable(''), js = $bindable('') } = $props()
+	let { data = {}, html = $bindable(''), css = $bindable(''), js = $bindable(''), onmod_e = () => {}, onmod_r = () => {} } = $props()
 
 	let html_pane = $state()
 	let css_pane = $state()
@@ -140,6 +140,8 @@
 					{data}
 					bind:value={html}
 					bind:selection={selections['html']}
+					on:mod-e
+					on:mod-r
 					on:modkeydown={() => (showing_local_key_hint = true)}
 					on:modkeyup={() => (showing_local_key_hint = false)}
 					on:tab-switch={({ detail }) => toggleTab(detail)}
@@ -192,6 +194,8 @@
 						// showing_format_button = true
 						dispatch('cssChange')
 					}}
+					on:mod-e
+					on:mod-r
 					on:format={() => (showing_format_button = false)}
 					on:save
 					on:refresh
@@ -240,6 +244,8 @@
 						// showing_format_button = true
 						dispatch('jsChange')
 					}}
+					on:mod-e
+					on:mod-r
 					on:format={() => (showing_format_button = false)}
 					on:save
 					on:refresh

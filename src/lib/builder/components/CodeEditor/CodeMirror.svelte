@@ -124,6 +124,13 @@
 					}
 				},
 				{
+					key: 'mod-r',
+					run: () => {
+						dispatch('mod-r')
+						return true
+					}
+				},
+				{
 					key: 'mod-1',
 					run: () => {
 						dispatch('tab-switch', 0)

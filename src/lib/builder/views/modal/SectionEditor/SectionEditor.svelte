@@ -9,7 +9,7 @@
 	import _, { chain as _chain } from 'lodash-es'
 	import ModalHeader from '../ModalHeader.svelte'
 	import FullCodeEditor from './FullCodeEditor.svelte'
-	import ComponentPreview, { has_error } from '$lib/builder/components/ComponentPreview.svelte'
+	import ComponentPreview, { refresh_preview, has_error } from '$lib/builder/components/ComponentPreview.svelte'
 	import Fields from '../../../components/Fields/FieldsContent.svelte'
 	import { userRole, locale, onMobile } from '../../../stores/app/misc.js'
 	import symbols from '../../../stores/data/symbols.js'
@@ -152,11 +152,19 @@
 	{/snippet}
 </ModalHeader>
 
-<main class:showing-fields={tab === 'fields'} lang={$locale}>
+<main lang={$locale}>
 	<PaneGroup direction={$orientation} class="flex gap-1">
 		<Pane defaultSize={50} class="flex flex-col">
 			{#if tab === 'code'}
-				<FullCodeEditor bind:html={raw_html} bind:css={raw_css} bind:js={raw_js} data={_.cloneDeep(component_data)} on:save={save_component} on:mod-e={() => {}} />
+				<FullCodeEditor
+					bind:html={raw_html}
+					bind:css={raw_css}
+					bind:js={raw_js}
+					data={_.cloneDeep(component_data)}
+					on:save={save_component}
+					on:mod-e={toggle_tab}
+					on:mod-r={() => $refresh_preview()}
+				/>
 			{:else if tab === 'content'}
 				<Fields
 					id="section-{component.id}"

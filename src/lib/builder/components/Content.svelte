@@ -151,8 +151,6 @@
 		if (!field.source) return true
 		else return $active_page.page_type.fields.some((f) => f.id === field.source)
 	}
-
-	// $inspect({ entries, fields })
 </script>
 
 <div class="Content">

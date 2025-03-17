@@ -2,8 +2,10 @@
 	import { writable } from 'svelte/store'
 	export const has_error = writable(true)
 
-	export const autoRefresh = writable(true)
+	export const auto_refresh = writable(true)
 	export const preview_updated = writable(true)
+
+	export const refresh_preview = writable(() => {})
 </script>
 
 <script>
@@ -85,7 +87,7 @@
 	}
 
 	let componentApp = $state(null)
-	async function compile_component_code(code) {
+	async function compile_component_code() {
 		if (!code.html) return
 		// disable_save = true
 		loading = true
@@ -118,6 +120,11 @@
 			}
 		}
 	}
+
+	// Set the refresh_preview store to the compile function
+	$effect(() => {
+		$refresh_preview = compile_component_code
+	})
 
 	let channel
 	onMount(() => {
@@ -204,7 +211,7 @@
 	function setIframeData(data) {
 		// if compilation error, try reloading app with updated data (i.e. error caused by missing field)
 		if (compilation_error) {
-			compile_component_code(code)
+			compile_component_code()
 		}
 		// reload the app if it crashed from an error
 		const div = iframe?.contentDocument?.querySelector('div.component')
@@ -259,8 +266,9 @@
 			orientation = 'vertical'
 		}
 	}
+
 	$effect(() => {
-		compile_component_code(code)
+		$auto_refresh && compile_component_code()
 	})
 	$effect(() => {
 		if (iframe) {
@@ -370,7 +378,7 @@
 					<Icon icon="charm:layout-columns" />
 				{/if}
 			</button>
-			<button title="Toggle auto-refresh (refresh with Command R)" class="auto-refresh" class:toggled={$autoRefresh} onclick={() => ($autoRefresh = !$autoRefresh)}>
+			<button title="Toggle auto-refresh (refresh with Command R)" class="auto-refresh" class:toggled={$auto_refresh} onclick={() => ($auto_refresh = !$auto_refresh)}>
 				<Icon icon="bx:refresh" />
 			</button>
 		</div>
