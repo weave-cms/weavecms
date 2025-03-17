@@ -114,6 +114,21 @@
 				{/if}
 			</Tabs.Content>
 		</Tabs.Root>
+	{:else}
+		<div class="p-4 page-type-fields">
+			<Content
+				fields={$active_page.page_type.fields}
+				entries={$active_page.entries}
+				on:input={debounce({
+					instant: ({ detail }) => update_page_entries.store(detail.updated),
+					delay: ({ detail }) => update_page_entries.db(detail.original, detail.updated)
+				})}
+				minimal={true}
+			/>
+		</div>
+		{#if $userRole === 'DEV'}
+			<button onclick={() => goto(`/${$site.id}/page-type--${$active_page.page_type.id}?t=p`)} class="footer-link mb-2 mr-2">Manage Fields</button>
+		{/if}
 	{/if}
 </div>
 
