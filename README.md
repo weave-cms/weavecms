@@ -1,4 +1,9 @@
-# WeaveCMS V3 Beta
+# WeaveCMS V3 Alpha
+
+> ## Weave has been temporarily reverted from Beta to Alpha status pending major architectural changes. We're currently working on significant backend changes and restructuring core components that could require a database manual migration in the future.
+
+During this transition period, the codebase is functional but should be considered highly experimental. Features, APIs, and architecture are all subject to substantial changes in upcoming releases.
+
 
 ## ✨ V3 Features & Improvements
 
